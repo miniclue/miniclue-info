@@ -7,7 +7,6 @@
 | • React PDF Viewer                       |                                                         |
 | • AI SDK (Vercel)                        |                                                         |
 | • PostHog Analytics                      |                                                         |
-| • TanStack Query                         |                                                         |
 | **API Gateway**                          | Golang 1.24+ (net/http, ServeMux)                       |
 | • Route groups under `/v1` (see below)   |                                                         |
 | • JWT middleware validating Supabase JWT |                                                         |
@@ -192,7 +191,7 @@ The system includes a RAG (Retrieval-Augmented Generation) chat feature that all
 - Row Level Security (RLS) enabled on all tables
 - Vector similarity search using IVFFlat index on embeddings
 - Image hash-based deduplication for slide images
-- Status tracking with multiple error detail fields (explanation_error_details, search_error_details)
+- Status tracking with multiple error detail fields (explanation_error_details, embedding_error_details)
 
 # Format of messages in topics
 
@@ -305,7 +304,7 @@ The system includes a RAG (Retrieval-Augmented Generation) chat feature that all
       - **Propagate Results:** It runs an `UPDATE` query on the `slide_images` table **where the `lecture_id` and `image_hash` match**. This ensures the analysis is written to every record representing that unique image.
       - **The "Last Job" Logic:** It increments the `processed_sub_images` counter in the main `lectures` table.
   4.  **Trigger Embedding Job (If Last):** After the transaction is successfully committed, it checks if `processed_sub_images == total_sub_images`. If they match, it publishes the single `embedding` message.
-  5.  **Granular Error Handling**: If an error occurs, it is caught, and a structured JSON error object is written to a dedicated `search_error_details` field in the `lectures` table before the exception is re-raised to trigger a Pub/Sub retry.
+  5.  **Granular Error Handling**: If an error occurs, it is caught, and a structured JSON error object is written to a dedicated `embedding_error_details` field in the `lectures` table before the exception is re-raised to trigger a Pub/Sub retry.
 
 ## Step 4: Creating Searchable Embeddings
 
